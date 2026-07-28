@@ -79,6 +79,7 @@ func Trace() Middleware {
 
 			log.Debug(
 				">>> incoming HTTP request",
+				zap.String("http_methon", r.Method),
 				zap.Time("time", before.UTC()),
 			)
 
@@ -87,6 +88,7 @@ func Trace() Middleware {
 			log.Debug(
 				"<<< done HTTP request",
 				zap.Int("status_code", rw.GetStatusCodeOrPanic()),
+				zap.String("http_methon", r.Method),
 				zap.Duration("latency", time.Since(before)),
 			)
 		})
