@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/inraise/todo-app/internal/core/logger"
+	"github.com/inraise/todo-app/internal/core/transport/http/middleware"
 	"go.uber.org/zap"
 )
 
@@ -14,17 +15,24 @@ type HTTPServer struct {
 	mux    *http.ServeMux
 	config Config
 	log    *logger.Logger
+
+	middleware []middleware.Middleware
 }
 
-func NewHTTPServer(config Config, log *logger.Logger) *HTTPServer {
+func NewHTTPServer(
+	config Config,
+	log *logger.Logger,
+	middleware ...middleware.Middleware,
+) *HTTPServer {
 	return &HTTPServer{
-		mux:    http.NewServeMux(),
-		config: config,
-		log:    log,
+		mux:        http.NewServeMux(),
+		config:     config,
+		log:        log,
+		middleware: middleware,
 	}
 }
 
-func (h *HTTPServer) RegisterAPIRoutes(routes ...APIVersionRouter) {
+func (h *HTTPServer) RegisterAPIRoutes(routes ...*APIVersionRouter) {
 	for _, router := range routes {
 		prefix := "/api/" + string(router.apiVersion)
 
@@ -36,9 +44,11 @@ func (h *HTTPServer) RegisterAPIRoutes(routes ...APIVersionRouter) {
 }
 
 func (h *HTTPServer) Run(ctx context.Context) error {
+	mux := middleware.ChainMiddleware(h.mux, h.middleware...)
+
 	server := &http.Server{
 		Addr:    h.config.Addr,
-		Handler: h.mux,
+		Handler: mux,
 	}
 
 	ch := make(chan error, 1)
