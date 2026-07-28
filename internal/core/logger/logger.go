@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -53,6 +54,15 @@ func NewLogger(config LoggerConfig) (*Logger, error) {
 		Logger: zapLogger,
 		file:   logFile,
 	}, nil
+}
+
+func FromContext(ctx context.Context) *Logger {
+	log, ok := ctx.Value("log").(*Logger)
+	if !ok {
+		panic("no logger in context")
+	}
+
+	return log
 }
 
 func (l *Logger) Close() {

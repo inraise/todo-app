@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/inraise/todo-app/internal/core/logger"
+	"github.com/inraise/todo-app/internal/core/transport/http/response"
 	"go.uber.org/zap"
 )
 
@@ -42,6 +43,27 @@ func Logger(log *logger.Logger) Middleware {
 			ctx := context.WithValue(r.Context(), "log", l)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+func Panic() Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			log := logger.FromContext(ctx)
+			resoponseHandler := response.NewHTTPResponseHandler(log, w)
+
+			defer func() {
+				if p := recover(); p != nil {
+					resoponseHandler.PanicResponse(
+						p,
+						"during handle HTTP request got unexpected panic",
+					)
+				}
+			}()
+
+			next.ServeHTTP(w, r)
 		})
 	}
 }
