@@ -21,12 +21,12 @@ func RequestID() Middleware {
 			requestID := r.Header.Get(reqIDHeader)
 			if requestID == "" {
 				requestID = uuid.NewString()
-
-				r.Header.Set(reqIDHeader, requestID)
-				w.Header().Set(reqIDHeader, requestID)
-
-				next.ServeHTTP(w, r)
 			}
+
+			r.Header.Set(reqIDHeader, requestID)
+			w.Header().Set(reqIDHeader, requestID)
+
+			next.ServeHTTP(w, r)
 		})
 	}
 }
