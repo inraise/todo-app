@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	coreLogger "github.com/inraise/todo-app/internal/core/logger"
-	"github.com/inraise/todo-app/internal/core/repository/postgres/pool"
+	"github.com/inraise/todo-app/internal/core/repository/postgres/pool/pgx"
 	"github.com/inraise/todo-app/internal/core/transport/http/middleware"
 	"github.com/inraise/todo-app/internal/core/transport/http/server"
 	postgres_repository "github.com/inraise/todo-app/internal/features/users/repository/postgres"
@@ -32,9 +32,9 @@ func main() {
 	defer logger.Close()
 
 	logger.Debug("initializing postgres connection pool")
-	pool, err := pool.NewConnectionPool(
+	pool, err := pgx.NewPool(
 		ctx,
-		pool.NewConfigMust(),
+		pgx.NewConfigMust(),
 	)
 	if err != nil {
 		logger.Fatal("failed to init connection pool", zap.Error(err))
@@ -53,8 +53,8 @@ func main() {
 		logger,
 		middleware.RequestID(),
 		middleware.Logger(logger),
-		middleware.Panic(),
 		middleware.Trace(),
+		middleware.Panic(),
 	)
 	apiVersionRouter := server.NewAPIVersionRouter(server.ApiVersion1)
 	apiVersionRouter.RegisterRoutes(usersTransportHTTP.Routes()...)

@@ -1,17 +1,21 @@
 package server
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/inraise/todo-app/internal/core/transport/http/middleware"
+)
 
 type Route struct {
-	Method  string
-	Path    string
-	Handler http.HandlerFunc
+	Method     string
+	Path       string
+	Handler    http.HandlerFunc
+	Middleware []middleware.Middleware
 }
 
-func NewRoute(method string, path string, handler http.HandlerFunc) Route {
-	return Route{
-		Method:  method,
-		Path:    path,
-		Handler: handler,
-	}
+func (r *Route) WithMiddleware() http.Handler {
+	return middleware.ChainMiddleware(
+		r.Handler,
+		r.Middleware...,
+	)
 }

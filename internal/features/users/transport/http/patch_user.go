@@ -10,7 +10,6 @@ import (
 	core_request "github.com/inraise/todo-app/internal/core/transport/http/request"
 	"github.com/inraise/todo-app/internal/core/transport/http/response"
 	"github.com/inraise/todo-app/internal/core/transport/http/types"
-	"github.com/inraise/todo-app/internal/core/transport/http/utils"
 )
 
 type PatchUserRequest struct {
@@ -55,7 +54,7 @@ func (h *UsersHTTPHandler) PatchUser(rw http.ResponseWriter, r *http.Request) {
 	log := logger.FromContext(ctx)
 	responseHandler := response.NewHTTPResponseHandler(log, rw)
 
-	userID, err := utils.GetIntPathValue(r, "id")
+	userID, err := core_request.GetIntPathValue(r, "id")
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err,
@@ -91,8 +90,5 @@ func (h *UsersHTTPHandler) PatchUser(rw http.ResponseWriter, r *http.Request) {
 }
 
 func userPatchFromRequest(request PatchUserRequest) domain.UserPatch {
-	return domain.UserPatch{
-		FullName:    request.FullName.ToDomain(),
-		PhoneNumber: request.PhoneNumber.ToDomain(),
-	}
+	return domain.NewUserPatch(request.FullName.ToDomain(), request.PhoneNumber.ToDomain())
 }

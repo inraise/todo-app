@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/inraise/todo-app/internal/core/logger"
+	core_request "github.com/inraise/todo-app/internal/core/transport/http/request"
 	"github.com/inraise/todo-app/internal/core/transport/http/response"
-	"github.com/inraise/todo-app/internal/core/transport/http/utils"
 )
 
 type GetUsersResponse []UserDTOResponse
@@ -41,12 +41,17 @@ func (h *UsersHTTPHandler) GetUsers(rw http.ResponseWriter, r *http.Request) {
 }
 
 func getLimitOffsetQueryParams(r *http.Request) (*int, *int, error) {
-	limit, err := utils.GetIntQueryParam(r, "limit")
+	const (
+		limitQueryParamKey  = "limit"
+		offsetQueryParamKey = "offset"
+	)
+
+	limit, err := core_request.GetIntQueryParam(r, limitQueryParamKey)
 	if err != nil {
 		return nil, nil, fmt.Errorf("get 'limit' query param: %w", err)
 	}
 
-	offset, err := utils.GetIntQueryParam(r, "offset")
+	offset, err := core_request.GetIntQueryParam(r, offsetQueryParamKey)
 	if err != nil {
 		return nil, nil, fmt.Errorf("get 'offset' query param: %w", err)
 	}

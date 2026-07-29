@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/inraise/todo-app/internal/core/logger"
+	core_request "github.com/inraise/todo-app/internal/core/transport/http/request"
 	"github.com/inraise/todo-app/internal/core/transport/http/response"
-	"github.com/inraise/todo-app/internal/core/transport/http/utils"
 )
 
 type GetUserResponse UserDTOResponse
@@ -15,7 +15,7 @@ func (h *UsersHTTPHandler) GetUser(rw http.ResponseWriter, r *http.Request) {
 	log := logger.FromContext(ctx)
 	responseHandler := response.NewHTTPResponseHandler(log, rw)
 
-	userId, err := utils.GetIntPathValue(r, "id")
+	userId, err := core_request.GetIntPathValue(r, "id")
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err,
