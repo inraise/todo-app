@@ -17,6 +17,13 @@ type TasksService interface {
 		ctx context.Context,
 		task domain.Task,
 	) (domain.Task, error)
+
+	GetTasks(
+		ctx context.Context,
+		userID *int,
+		limit *int,
+		offset *int,
+	) ([]domain.Task, error)
 }
 
 func NewTasksHTTPHandler(tasksService TasksService) *TasksHTTPHandler {
@@ -31,6 +38,11 @@ func (h *TasksHTTPHandler) Routes() []server.Route {
 			Method:  http.MethodPost,
 			Path:    "/tasks",
 			Handler: h.CreateTask,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/tasks",
+			Handler: h.GetTasks,
 		},
 	}
 }
