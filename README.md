@@ -16,8 +16,9 @@ internal/
   core/                общие компоненты: domain-модели, ошибки, логгер,
                         пул соединений с БД, HTTP-сервер/роутер/middleware
   features/
-    users/ tasks/ statistics/   repository → service → transport/http
+    users/ tasks/ statistics/ web/   repository → service → transport/http
 migrations/           SQL-миграции (golang-migrate)
+public/                index.html — фронтенд-страничка (см. ниже)
 ```
 
 **Ключевые решения:**
@@ -66,6 +67,10 @@ Swagger UI: [http://45.131.43.74:5050/swagger/](http://45.131.43.74:5050/swagger
 ```json
 { "message": "human-readable контекст", "error": "исходная ошибка" }
 ```
+
+## Frontend
+
+На `/` отдаётся `public/index.html` (см. `internal/features/web`) — простая HTML-страничка для наглядной работы с API (карточки задач и т.п.). Написана Claude.ai как демонстрационный пример использования API, самостоятельной ценности как фронтенд не несёт.
 
 ## Запуск
 

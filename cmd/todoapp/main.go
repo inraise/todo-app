@@ -22,6 +22,9 @@ import (
 	postgres_repository "github.com/inraise/todo-app/internal/features/users/repository/postgres"
 	"github.com/inraise/todo-app/internal/features/users/service"
 	"github.com/inraise/todo-app/internal/features/users/transport/http"
+	filesystem "github.com/inraise/todo-app/internal/features/web/repository/file_system"
+	web_service "github.com/inraise/todo-app/internal/features/web/service"
+	web_http "github.com/inraise/todo-app/internal/features/web/transport/http"
 	"go.uber.org/zap"
 
 	_ "github.com/inraise/todo-app/docs"
@@ -70,10 +73,15 @@ func main() {
 	tasksService := task_service.NewTasksService(tasksRepository)
 	tasksTransportHTTP := task_http.NewTasksHTTPHandler(tasksService)
 
-	logger.Debug("initializing statistics", zap.String("feature", "statistics"))
+	logger.Debug("initializing feature", zap.String("feature", "statistics"))
 	statisticsRepository := statistics_postgres.NewStatisticsRepository(pool)
 	statisticsService := statistics_service.NewStatisticsService(statisticsRepository)
 	statisticsTransportHTTP := statistics_http.NewStatisticsHTTPHandler(statisticsService)
+
+	logger.Debug("initializing feature", zap.String("feature", "web"))
+	webRepository := filesystem.NewWebRepository()
+	webService := web_service.NewWebService(webRepository)
+	webTransport := web_http.NewWebHTTPHandler(webService)
 
 	logger.Debug("initializing HTTP server")
 
@@ -91,6 +99,8 @@ func main() {
 	apiVersionRouter.RegisterRoutes(tasksTransportHTTP.Routes()...)
 	apiVersionRouter.RegisterRoutes(statisticsTransportHTTP.Routes()...)
 
+	httpServer.RegisterRoutes(webTransport.Routes()...)
+	
 	httpServer.RegisterAPIRoutes(apiVersionRouter)
 	httpServer.RegisterSwagger()
 
