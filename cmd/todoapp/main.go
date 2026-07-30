@@ -13,6 +13,9 @@ import (
 	"github.com/inraise/todo-app/internal/core/repository/postgres/pool/pgx"
 	"github.com/inraise/todo-app/internal/core/transport/http/middleware"
 	"github.com/inraise/todo-app/internal/core/transport/http/server"
+	statistics_postgres "github.com/inraise/todo-app/internal/features/statistics/repository/postgres"
+	statistics_service "github.com/inraise/todo-app/internal/features/statistics/service"
+	statistics_http "github.com/inraise/todo-app/internal/features/statistics/transport/http"
 	task_postgres_repository "github.com/inraise/todo-app/internal/features/tasks/repository/postgres"
 	task_service "github.com/inraise/todo-app/internal/features/tasks/service"
 	task_http "github.com/inraise/todo-app/internal/features/tasks/transport/http"
@@ -60,6 +63,11 @@ func main() {
 	tasksService := task_service.NewTasksService(tasksRepository)
 	tasksTransportHTTP := task_http.NewTasksHTTPHandler(tasksService)
 
+	logger.Debug("initializing statistics", zap.String("feature", "statistics"))
+	statisticsRepository := statistics_postgres.NewStatisticsRepository(pool)
+	statisticsService := statistics_service.NewStatisticsService(statisticsRepository)
+	statisticsTransportHTTP := statistics_http.NewStatisticsHTTPHandler(statisticsService)
+
 	logger.Debug("initializing HTTP server")
 
 	httpServer := server.NewHTTPServer(
@@ -73,6 +81,7 @@ func main() {
 	apiVersionRouter := server.NewAPIVersionRouter(server.ApiVersion1)
 	apiVersionRouter.RegisterRoutes(usersTransportHTTP.Routes()...)
 	apiVersionRouter.RegisterRoutes(tasksTransportHTTP.Routes()...)
+	apiVersionRouter.RegisterRoutes(statisticsTransportHTTP.Routes()...)
 	httpServer.RegisterAPIRoutes(apiVersionRouter)
 
 	if err := httpServer.Run(ctx); err != nil {
