@@ -10,14 +10,25 @@ import (
 	core_request "github.com/inraise/todo-app/internal/core/transport/http/request"
 	"github.com/inraise/todo-app/internal/core/transport/http/response"
 )
-
 type GetStatisticsResponse struct {
-	TasksCreated               int      `json:"tasks_created"`
-	TasksCompleted             int      `json:"tasks_completed"`
-	TasksCompletedRate         *float64 `json:"tasks_completed_rate"`
-	TasksAverageCompletionTime *string  `json:"tasks_average_completion_time"`
+	TasksCreated               int      `json:"tasks_created" example:"12"`
+	TasksCompleted             int      `json:"tasks_completed" example:"6"`
+	TasksCompletedRate         *float64 `json:"tasks_completed_rate" example:"50"`
+	TasksAverageCompletionTime *string  `json:"tasks_average_completion_time" example:"1m30s"`
 }
 
+// GetStatistics godoc
+// @Summary Получение статистики
+// @Description Получить статистику по задачам с опциональной фильтрацией по user_id и/или временному промежутку
+// @Tags statistics
+// @Produce json
+// @Param user_id query int false "Фильтрация статистики по пользователю"
+// @Param from query string false "Начало промежутка для статистики (включительно)"
+// @Param to query string false "Конец промежутка для статистики (не включительно)"
+// @Success 200 {object} GetStatisticsResponse "Успешное получение"
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /statistics [get]
 func (h *StatisticsHTTPHandler) GetStatistics(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)
