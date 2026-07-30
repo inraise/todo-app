@@ -27,6 +27,11 @@ type TasksRepository interface {
 		ctx context.Context,
 		taskID int,
 	) (domain.Task, error)
+
+	DeleteTask(
+		ctx context.Context,
+		taskID int,
+	) error
 }
 
 func NewTasksService(tasksRepository TasksRepository) *TasksService {

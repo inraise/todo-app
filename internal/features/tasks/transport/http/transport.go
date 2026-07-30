@@ -29,6 +29,11 @@ type TasksService interface {
 		ctx context.Context,
 		taskID int,
 	) (domain.Task, error)
+
+	DeleteTask(
+		ctx context.Context,
+		taskID int,
+	) error
 }
 
 func NewTasksHTTPHandler(tasksService TasksService) *TasksHTTPHandler {
@@ -53,6 +58,11 @@ func (h *TasksHTTPHandler) Routes() []server.Route {
 			Method:  http.MethodGet,
 			Path:    "/tasks/{id}",
 			Handler: h.GetTask,
+		},
+		{
+			Method:  http.MethodDelete,
+			Path:    "/tasks/{id}",
+			Handler: h.DeleteTask,
 		},
 	}
 }
