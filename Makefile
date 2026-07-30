@@ -66,3 +66,9 @@ logs-cleanup:
 	else \
 		echo "Отмена."; \
 	fi
+
+todoapp-deploy:
+	@docker compose up -d --build todoapp
+
+ps:
+	@docker compose ps
