@@ -627,7 +627,7 @@
     <div class="conn">
       <span class="dot" id="connDot"></span>
       <label for="apiBase">API</label>
-      <input id="apiBase" type="text" value="http://127.0.0.1:5050/api/v1" spellcheck="false">
+      <input id="apiBase" type="text" value="" spellcheck="false">
       <button class="btn ghost small" id="reconnectBtn">Проверить</button>
     </div>
   </div>
@@ -777,6 +777,29 @@
 
   const apiBaseInput = $('#apiBase');
   const connDot = $('#connDot');
+  const API_PORT = 5050; // порт бэкенда, если он не спрятан за реверс-прокси
+  const STORAGE_KEY = 'todo-app:api-base';
+
+  // Пытаемся угадать адрес API:
+  // 1) если пользователь уже указывал его вручную — берём из localStorage
+  // 2) если страница открыта с того же хоста, что и бэкенд (например, http://45.131.43.74/index.html) —
+  //    используем тот же protocol+hostname с портом бэкенда
+  // 3) если страница открыта локально как файл (file://) — используем 127.0.0.1
+  function guessApiBase(){
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return saved;
+
+    const { protocol, hostname } = window.location;
+    if (protocol === 'file:' || !hostname) {
+      return 'http://127.0.0.1:' + API_PORT + '/api/v1';
+    }
+    return protocol + '//' + hostname + ':' + API_PORT + '/api/v1';
+  }
+
+  apiBaseInput.value = guessApiBase();
+  apiBaseInput.addEventListener('change', () => {
+    localStorage.setItem(STORAGE_KEY, apiBaseInput.value.trim());
+  });
 
   function apiBase(){ return apiBaseInput.value.replace(/\/+$/, ''); }
 
