@@ -85,10 +85,11 @@ func main() {
 
 	logger.Debug("initializing HTTP server")
 
+	httpConfig := server.NewConfigMust()
 	httpServer := server.NewHTTPServer(
-		server.NewConfigMust(),
+		httpConfig,
 		logger,
-		middleware.CORS(),
+		middleware.CORS(httpConfig.AllowedOrigins),
 		middleware.RequestID(),
 		middleware.Logger(logger),
 		middleware.Trace(),
