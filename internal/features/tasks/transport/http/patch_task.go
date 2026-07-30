@@ -49,6 +49,24 @@ func (r *PatchTaskRequest) Validate() error {
 	return nil
 }
 
+// PatchTasks godoc
+// @Summary Изменить задачу
+// @Description Изменить задачу из системы по его id
+// @Description ### Логика обновления полей (Three-state logic):
+// @Description 1. **Поле не передано**: `description` игнорируется, значение в бд не меняется
+// @Description 2. **Явное значение**: `description` устанавливается новое значение
+// @Description 3. **Значение null**: `description` удаляется, заменяясь на null
+// @Description `title` и `completed` не может быть null
+// @Tags tasks
+// @Accept json
+// @Produce json
+// @Param id path int true "ID изменяемой задачи"
+// @Param request body PatchTaskRequest true "PatchTask тело запроса"
+// @Success 200 {object} PatchTaskResponse "Успешное изменение"
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 404 {object} response.ErrorResponse "Task not found"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /tasks/{id} [patch]
 func (h *TasksHTTPHandler) PatchTask(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

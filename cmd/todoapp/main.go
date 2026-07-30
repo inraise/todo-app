@@ -23,8 +23,15 @@ import (
 	"github.com/inraise/todo-app/internal/features/users/service"
 	"github.com/inraise/todo-app/internal/features/users/transport/http"
 	"go.uber.org/zap"
+
+	_ "github.com/inraise/todo-app/docs"
 )
 
+// @title 		Go ToDo API
+// @version 	1.0
+// @description Todo Application REST-API scheme
+// @host 		127.0.0.1:5050
+// @BasePath 	/api/v1
 func main() {
 	cfg := core_config.NewConfigMust()
 	time.Local = cfg.TimeZone
@@ -73,6 +80,7 @@ func main() {
 	httpServer := server.NewHTTPServer(
 		server.NewConfigMust(),
 		logger,
+		middleware.CORS(),
 		middleware.RequestID(),
 		middleware.Logger(logger),
 		middleware.Trace(),
@@ -82,7 +90,9 @@ func main() {
 	apiVersionRouter.RegisterRoutes(usersTransportHTTP.Routes()...)
 	apiVersionRouter.RegisterRoutes(tasksTransportHTTP.Routes()...)
 	apiVersionRouter.RegisterRoutes(statisticsTransportHTTP.Routes()...)
+
 	httpServer.RegisterAPIRoutes(apiVersionRouter)
+	httpServer.RegisterSwagger()
 
 	if err := httpServer.Run(ctx); err != nil {
 		logger.Error("HTTP server run error", zap.Error(err))

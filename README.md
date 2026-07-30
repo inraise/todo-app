@@ -4,7 +4,7 @@ Backend-сервис для управления задачами (TODO): пол
 
 ## Стек
 
-Go 1.26 · PostgreSQL 17 (`pgx/v5`) · `net/http` (`http.ServeMux`, без фреймворка) · `zap` (логи) · `go-playground/validator` (валидация) · `golang-migrate` (миграции) · `envconfig` (конфиг из env) · Docker / Docker Compose
+Go 1.26 · PostgreSQL 17 (`pgx/v5`) · `net/http` (`http.ServeMux`, без фреймворка) · `zap` (логи) · `go-playground/validator` (валидация) · `golang-migrate` (миграции) · `envconfig` (конфиг из env) · `swaggo` (Swagger-документация) · Docker / Docker Compose
 
 ## Архитектура
 
@@ -35,8 +35,8 @@ migrations/           SQL-миграции (golang-migrate)
 
 ## HTTP API
 
-IP-адрес прод. сервера: `45.131.43.74:5050`.
-Базовый префикс: `/api/v1`.
+Прод-сервер: `http://45.131.43.74:5050`, базовый префикс `/api/v1`.
+Swagger UI: [http://45.131.43.74:5050/swagger/](http://45.131.43.74:5050/swagger/) (спецификация — `/swagger/doc.json`).
 
 | Ресурс | Метод/путь | Описание |
 |---|---|---|
