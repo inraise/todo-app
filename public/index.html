@@ -1073,8 +1073,8 @@
         const description = $('textarea[data-role="description"]', box).value.trim();
         try {
           await api('PATCH', '/tasks/' + id, {
-            title: { set: true, value: title },
-            description: { set: true, value: description }
+            title: title,
+            description: description === '' ? null : description
           });
           toast('Задача #' + id + ' обновлена');
           await loadTasks();
@@ -1097,7 +1097,7 @@
       const id = chk.dataset.id;
       const completed = chk.checked;
       try {
-        await api('PATCH', '/tasks/' + id, { completed: { set: true, value: completed } });
+        await api('PATCH', '/tasks/' + id, { completed: completed });
         toast('Статус задачи #' + id + (completed ? ' — выполнена' : ' — возвращена в работу'));
         await loadTasks();
       } catch (err) { toast(err.message, true); chk.checked = !completed; }
