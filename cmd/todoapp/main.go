@@ -6,11 +6,16 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
+	core_config "github.com/inraise/todo-app/internal/core/config"
 	coreLogger "github.com/inraise/todo-app/internal/core/logger"
 	"github.com/inraise/todo-app/internal/core/repository/postgres/pool/pgx"
 	"github.com/inraise/todo-app/internal/core/transport/http/middleware"
 	"github.com/inraise/todo-app/internal/core/transport/http/server"
+	task_postgres_repository "github.com/inraise/todo-app/internal/features/tasks/repository/postgres"
+	task_service "github.com/inraise/todo-app/internal/features/tasks/service"
+	task_http "github.com/inraise/todo-app/internal/features/tasks/transport/http"
 	postgres_repository "github.com/inraise/todo-app/internal/features/users/repository/postgres"
 	"github.com/inraise/todo-app/internal/features/users/service"
 	"github.com/inraise/todo-app/internal/features/users/transport/http"
@@ -18,6 +23,9 @@ import (
 )
 
 func main() {
+	cfg := core_config.NewConfigMust()
+	time.Local = cfg.TimeZone
+
 	ctx, cancel := signal.NotifyContext(
 		context.Background(),
 		syscall.SIGINT, syscall.SIGTERM,
@@ -31,6 +39,7 @@ func main() {
 	}
 	defer logger.Close()
 
+	logger.Debug("app time zone", zap.Any("time_zone", time.Local))
 	logger.Debug("initializing postgres connection pool")
 	pool, err := pgx.NewPool(
 		ctx,
@@ -46,6 +55,11 @@ func main() {
 	usersService := service.NewUsersService(usersRepository)
 	usersTransportHTTP := http.NewUsersHTTPHandler(usersService)
 
+	logger.Debug("initializing feature", zap.String("feature", "tasks"))
+	tasksRepository := task_postgres_repository.NewTasksRepository(pool)
+	tasksService := task_service.NewTasksService(tasksRepository)
+	tasksTransportHTTP := task_http.NewTasksHTTPHandler(tasksService)
+
 	logger.Debug("initializing HTTP server")
 
 	httpServer := server.NewHTTPServer(
@@ -58,6 +72,7 @@ func main() {
 	)
 	apiVersionRouter := server.NewAPIVersionRouter(server.ApiVersion1)
 	apiVersionRouter.RegisterRoutes(usersTransportHTTP.Routes()...)
+	apiVersionRouter.RegisterRoutes(tasksTransportHTTP.Routes()...)
 	httpServer.RegisterAPIRoutes(apiVersionRouter)
 
 	if err := httpServer.Run(ctx); err != nil {
