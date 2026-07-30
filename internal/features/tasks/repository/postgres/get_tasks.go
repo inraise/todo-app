@@ -19,7 +19,7 @@ func (r *TasksRepository) GetTasks(
 	query := `
 		SELECT id, version, title, description, completed, created_at, completed_at, author_user_id
 		FROM todoapp.tasks
-		WHERE ($1 IS NULL OR author_user_id = $1)
+		WHERE ($1::int IS NULL OR author_user_id = $1)
 		ORDER BY id ASC
 		LIMIT $2
 		OFFSET $3;`
