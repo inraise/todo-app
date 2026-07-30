@@ -21,17 +21,21 @@ func taskDomainsFromModels(taskModels []TaskModel) []domain.Task {
 	tasks := make([]domain.Task, len(taskModels))
 
 	for i, taskModel := range taskModels {
-		tasks[i] = domain.NewTask(
-			taskModel.ID,
-			taskModel.Version,
-			taskModel.Title,
-			taskModel.Description,
-			taskModel.Completed,
-			taskModel.CreatedAt,
-			taskModel.CompletedAt,
-			taskModel.AuthorUserID,
-		)
+		tasks[i] = taskDomainFromModel(taskModel)
 	}
 
 	return tasks
+}
+
+func taskDomainFromModel(taskModel TaskModel) domain.Task {
+	return domain.NewTask(
+		taskModel.ID,
+		taskModel.Version,
+		taskModel.Title,
+		taskModel.Description,
+		taskModel.Completed,
+		taskModel.CreatedAt,
+		taskModel.CompletedAt,
+		taskModel.AuthorUserID,
+	)
 }
