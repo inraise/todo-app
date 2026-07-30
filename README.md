@@ -90,6 +90,7 @@ cp .env.example .env
 | `HTTP_ADDR` | адрес HTTP-сервера |
 | `HTTP_SHUTDOWN_TIMEOUT` | таймаут graceful shutdown |
 | `TIME_ZONE` | тайм-зона приложения |
+| `ALLOWED_ORIGINS` | список разрешенных источников CORS |
 
 ### 2. База данных и миграции
 ```bash
